@@ -1,26 +1,134 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Colors are emitted to :root so they're usable both as Tailwind utilities
+   (text-accent, bg-accent, …) and as raw var() values in the rules below. */
+@theme {
+  --color-accent: #818cf8; /* indigo-400 */
+  --color-accent-bright: #a5b4fc; /* indigo-300 */
+  --color-accent-deep: #6366f1; /* indigo-500 */
+  --color-glow: #22d3ee; /* cyan-400 */
 }
 
+/* Fonts must be inlined so `font-sans`/`font-mono` resolve the Geist vars
+   set in app/layout.tsx. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem; /* offset for the fixed nav */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #09090b; /* zinc-950 */
+  color: #d4d4d8; /* zinc-300 */
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: color-mix(in oklab, var(--color-accent) 35%, transparent);
+  color: #ffffff;
+}
+
+/* Gradient headline / accent text */
+.text-gradient {
+  background-image: linear-gradient(
+    100deg,
+    #fafafa 0%,
+    var(--color-accent-bright) 55%,
+    var(--color-glow) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Thin gradient divider used between sections */
+.rule-gradient {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--color-accent) 60%, transparent),
+    transparent
+  );
+}
+
+/* Faint grid backdrop, masked so it fades toward the edges */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slowly drifting ambient glows behind the hero */
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4%, -3%, 0) scale(1.08);
+  }
+}
+
+@keyframes drift-alt {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-5%, 4%, 0) scale(1.12);
+  }
+}
+
+.glow {
+  animation: drift 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+.glow-alt {
+  animation: drift-alt 22s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Respect users who prefer less motion: kill drifts, reveals, and smooth scroll. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .glow,
+  .glow-alt {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
